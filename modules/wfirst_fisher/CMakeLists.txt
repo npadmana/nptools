@@ -18,7 +18,7 @@ link_directories("$ENV{GSL_DIR}/lib")
 
 
 # EXAMPLES --- YOU NEED TO CHANGE THIS AS NECESSARY
-set(SOURCES fomswg.cpp fisher_utils.cpp)
+set(SOURCES fomswg.cpp fisher_utils.cpp wfirst_detf.cpp)
 
 
 # LIBRARIES -- an example of how to build both static and shared libs
@@ -30,4 +30,7 @@ target_link_libraries(wfirst_fisher ${GSL_LIBS})
 
 # EXECUTABLES
 add_executable(fomswg_stage3 fomswg_stage3.cpp)
-target_link_libraries(fomswg_stage3 wfirst_fisher ${GSL_LIBS})
+target_link_libraries(fomswg_stage3 wfirst_fisher)
+
+add_executable(fomswg_to_detf fomswg_to_detf.cpp)
+target_link_libraries(fomswg_to_detf wfirst_fisher)

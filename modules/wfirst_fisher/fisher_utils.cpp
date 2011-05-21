@@ -76,7 +76,6 @@ MatrixXd marginalize(const MatrixXd& in, vector<int> params) {
     SelfAdjointEigenSolver<MatrixXd> eigen(Frr);
     VectorXd dd = eigen.eigenvalues();
     Fqr = Fqr*eigen.eigenvectors();
-    cout << Fqr.rows() << " " << Fqr.cols() << endl;
     for (int ii=0; ii < nnuis; ++ii) {
         if (dd[ii] < 1.e-5) {
             cout << boost::format("WARNING! %1% parameter has a very small eigenvalue....\n")% ii;
