@@ -1,0 +1,33 @@
+# We don't do anything fancy here
+cmake_minimum_required(VERSION 2.6)
+set(CMAKE_BUILD_TYPE Debug)
+
+# Give your project a name
+PROJECT (wfirst_fisher)
+
+# Includes 
+include_directories("$ENV{NPTOOLS_DIR}/include")
+
+# Includes
+include_directories("$ENV{BOOST_DIR}/include")
+
+# Includes
+include_directories("$ENV{GSL_DIR}/include")
+set(GSL_LIBS gsl.a gslcblas.a)
+link_directories("$ENV{GSL_DIR}/lib")
+
+
+# EXAMPLES --- YOU NEED TO CHANGE THIS AS NECESSARY
+set(SOURCES fomswg.cpp fisher_utils.cpp)
+
+
+# LIBRARIES -- an example of how to build both static and shared libs
+add_library(wfirst_fisher STATIC ${SOURCES})
+#add_library(wfirst_fisher_shared SHARED ${SOURCES})
+target_link_libraries(wfirst_fisher ${GSL_LIBS})
+#target_link_libraries(wfirst_fisher_shared ${GSL_LIBS})
+#set_target_properties(wfirst_fisher_static wfirst_fisher_shared PROPERTIES OUTPUT_NAME wfirst_fisher)
+
+# EXECUTABLES
+add_executable(fomswg_stage3 fomswg_stage3.cpp)
+target_link_libraries(fomswg_stage3 wfirst_fisher ${GSL_LIBS})
