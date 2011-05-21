@@ -1,0 +1,4 @@
+sandbox/build*
+modules/build*
+
+CMakeLists.txt.user
