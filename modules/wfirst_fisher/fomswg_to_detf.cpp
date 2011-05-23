@@ -18,19 +18,20 @@ int main() {
     dfish.setZero();
 
     // Set up the list of files to read.
-    fns.push_back("PLANCK.dat");
-    fns.push_back("preJDEM_SN.dat");
-    fns.push_back("preJDEM_BAO.dat");
-    fns.push_back("preJDEM_WL.dat");
+    fns.push_back("PLANCK");
+    fns.push_back("preJDEM_SN");
+    fns.push_back("preJDEM_BAO");
+    fns.push_back("preJDEM_WL");
 
     // Transform matrix
     trans = mkTransformMatrix();
 
 
     BOOST_FOREACH(string fn, fns) {
-        ff1 = readFomSWG(fn);
+        ff1 = readFomSWG(fn+".dat");
         ff += ff1;
         dfish1 = trans.transpose() * ff1 * trans;
+        writeDETFFisher(fn+"_detf.dat", dfish1);
         dfish += dfish1;
     }
 

@@ -22,11 +22,8 @@ set(SOURCES fomswg.cpp fisher_utils.cpp wfirst_detf.cpp)
 
 
 # LIBRARIES -- an example of how to build both static and shared libs
-add_library(wfirst_fisher STATIC ${SOURCES})
-#add_library(wfirst_fisher_shared SHARED ${SOURCES})
+add_library(wfirst_fisher ${SOURCES})
 target_link_libraries(wfirst_fisher ${GSL_LIBS})
-#target_link_libraries(wfirst_fisher_shared ${GSL_LIBS})
-#set_target_properties(wfirst_fisher_static wfirst_fisher_shared PROPERTIES OUTPUT_NAME wfirst_fisher)
 
 # EXECUTABLES
 add_executable(fomswg_stage3 fomswg_stage3.cpp)

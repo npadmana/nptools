@@ -1,5 +1,4 @@
 #include "fomswg.h"
-#include "npio.h"
 
 using namespace std;
 using namespace Eigen;

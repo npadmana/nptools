@@ -86,7 +86,27 @@ MatrixXd mkTransformMatrix() {
 }
 
 
+MatrixXd readDETF(string fn) {
+    typedef boost::tuple<int, int, double> rec;
+    vector<rec> ll;
 
+    ll = readAsciiFile(fn, &TupleAdaptor<rec, 3>);
+
+    MatrixXd fish(ndetf, ndetf);
+    fish.setZero();
+
+    BOOST_FOREACH (rec ii, ll) {
+        fish(ii.get<0>(), ii.get<1>()) = ii.get<2>();
+        fish(ii.get<1>(), ii.get<0>()) = ii.get<2>();
+    }
+
+    return fish;
+}
+
+
+void writeDETFFisher(std::string fn, const MatrixXd& mat) {
+    writeSymmMatrix_withIndices(fn, "%1$6i %2$6i %3$25.15e\n", mat);
+}
 
 
 

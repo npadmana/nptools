@@ -25,12 +25,10 @@
 #include <boost/array.hpp>
 #include <boost/foreach.hpp>
 
-bool _isempty(const std::string &s) {return (s.size() == 0);}
-
-std::list < std::string > tokenize(std::string ss, std::string delim) {
+inline std::list < std::string > tokenize(std::string ss, std::string delim) {
     std::list< std::string > strs;
     boost::split(strs, ss, boost::is_any_of(delim));
-    strs.remove_if(_isempty);
+    strs.remove_if(std::mem_fun_ref(&std::string::empty));
     return strs;
 }
 
@@ -51,7 +49,7 @@ void LineProcessor(std::ifstream &ff, std::vector<T>& ll, std::string delim, boo
     }
 }
 
-bool fill_tuple(const boost::tuples::null_type& , std::list < std::string >) {return true;}
+inline bool fill_tuple(const boost::tuples::null_type& , std::list < std::string >) {return true;}
 
 template <class H, class T>
 bool fill_tuple(boost::tuples::cons<H, T>& tup, std::list< std::string > &ll) {

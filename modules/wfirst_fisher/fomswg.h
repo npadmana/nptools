@@ -11,6 +11,7 @@
 #include <boost/array.hpp>
 #include <eigen3/Eigen/Dense>
 #include <cosmoutils.h>
+#include <npio.h>
 
 const int nfswg = 45; // Number of FOMSWG parameters
 const int startw = 9; // The starting index for the DE EoS parameters
