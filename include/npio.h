@@ -1,4 +1,6 @@
-/** IO helper routines
+/** 
+ * @file 
+ * IO helper routines
  * Nikhil Padmanabhan, Yale, May, 2011
  *
  * The principal routine here is readAsciiFile, which can be specialized using different adaptors.
@@ -78,12 +80,25 @@ bool array_parse(T& arr, std::list< std::string > &ll) {
     return true;
 }
 
-
 template <class T, int N>
 void ArrayAdaptor(std::ifstream &ff, std::vector<T>& ll, std::string delim) {
     LineProcessor<T, N>(ff, ll, delim, array_parse<T,N>);
 }
 
+/** Process a text file 
+ *  
+ *  @param fn
+ *    File name
+ *  @param adaptor 
+ *    A functor to process the file. This must have a signature :
+ *       (ifstream&, vector<T>&, string&) where the parameters are the input stream, 
+ *       the vector to collect results in, and the delimiter to use.
+ *  @param delim 
+ *     delimiter (default is any of "\t" or " ")
+ *
+ *  Two available adaptors are TupleAdaptor and ArrayAdaptor
+ *
+ * */
 template <class T>
 std::vector<T> readAsciiFile(std::string fn, void (*adaptor)(std::ifstream &, std::vector<T>&, std::string), std::string delim="\t ") {
     std::vector<T> ll;
