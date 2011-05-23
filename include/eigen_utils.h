@@ -58,4 +58,33 @@ void writeSymmMatrix_withIndices(std::string fn, std::string fmt, const Eigen::D
     ff.close();
 }
 
+
+/**
+* Write out an Eigen derived class to a file fn, with a boost::format string fmt.
+* This inserts an endline after each row.
+*/
+template <typename DerivedBase>
+void writeMatrix(std::string fn, std::string fmt, const Eigen::DenseBase<DerivedBase>& mat) {
+    double nrow, ncol;
+    nrow = mat.rows();
+    ncol = mat.cols();
+
+    // Open file
+    std::ofstream ff(fn.c_str());
+
+    if (ff.is_open()) {
+        for (int ii=0; ii < nrow; ++ii) {
+            for (int jj = 0; jj < ncol; ++jj)
+                ff << boost::format(fmt) % mat(ii, jj);
+                ff << std::endl;
+        }
+    } else {
+        throw "Unable to open file\n";
+    }
+
+    // Close file
+    ff.close();
+}
+
+
 #endif // EIGEN_UTILS_H
