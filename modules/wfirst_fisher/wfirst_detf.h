@@ -19,6 +19,7 @@ double hubble(double a, detf c);
 
 /*** The basic interface ends here ***/
 
+double snmag(double a, detf cosmo);
 // Convert DETF to Fswg
 Fswg detf2Fswg(detf c);
 Eigen::MatrixXd mkTransformMatrix();

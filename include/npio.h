@@ -88,7 +88,7 @@ template <class T>
 std::vector<T> readAsciiFile(std::string fn, void (*adaptor)(std::ifstream &, std::vector<T>&, std::string), std::string delim="\t ") {
     std::vector<T> ll;
     std::ifstream ff(fn.c_str());
-    if (!ff.is_open()) {throw -999;} // Horrid design!
+    if (!ff.is_open()) {throw "An error occurred";} // Horrid design!
     adaptor(ff, ll, delim);
     ff.close();
     return ll;

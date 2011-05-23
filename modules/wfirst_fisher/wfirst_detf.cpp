@@ -116,3 +116,6 @@ Eigen::MatrixXd marginalizeSNparam(const Eigen::MatrixXd& mat) {
     return marginalize(mat, params);
 }
 
+
+double snmag(double a, detf cosmo) {return dm(a, cosmo) + cosmo[9];}
+
