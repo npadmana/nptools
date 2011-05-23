@@ -93,7 +93,7 @@ MatrixXd readDETF(string fn) {
 
     ll = readAsciiFile(fn, &TupleAdaptor<rec, 3>);
 
-    MatrixXd fish(ndetf, ndetf);
+    MatrixXd fish(ndetf-ndetf_nuis, ndetf-ndetf_nuis);
     fish.setZero();
 
     BOOST_FOREACH (rec ii, ll) {

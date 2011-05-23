@@ -12,7 +12,7 @@ using namespace Eigen;
 int main() {
     vector<string> fns;
     MatrixXd ff1(nfswg, nfswg), ff(nfswg, nfswg);
-    MatrixXd dfish1(ndetf, ndetf), dfish(ndetf-1, ndetf-1); // dfish accumulates only the non-SN parameters
+    MatrixXd dfish1(ndetf, ndetf), dfish(ndetf-ndetf_nuis, ndetf-ndetf_nuis); // dfish accumulates only the non-SN parameters
     MatrixXd trans(nfswg, ndetf);
     ff.setZero();
     dfish.setZero();
