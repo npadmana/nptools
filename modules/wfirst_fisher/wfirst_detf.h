@@ -7,7 +7,6 @@
 #include <eigen3/Eigen/Dense>
 #include <cosmoutils.h>
 #include <eigen_utils.h>
-#include <npio.h>
 #include "fomswg.h"
 
 const int ndetf = 10; // Include a script M for SN
@@ -26,6 +25,7 @@ Eigen::MatrixXd mkTransformMatrix();
 
 Eigen::MatrixXd marginalizeSNparam(const Eigen::MatrixXd& mat);
 
+Eigen::MatrixXd readDETF(std::string fn);
 void writeDETFFisher(std::string fn, const Eigen::MatrixXd& mat);
 
 #endif // WFIRST_DETF_H

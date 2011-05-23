@@ -1,6 +1,7 @@
 #include "wfirst_detf.h"
 #include <cmath>
 #include <gslwrap.h>
+#include <npio.h>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 #include "fisher_utils.h"
@@ -88,25 +89,23 @@ MatrixXd mkTransformMatrix() {
 
 
 MatrixXd readDETF(string fn) {
-    typedef boost::tuple<int, int, double> rec;
+    typedef boost::array<double, 9> rec;
     vector<rec> ll;
 
-    ll = readAsciiFile(fn, &TupleAdaptor<rec, 3>);
+    ll = readAsciiFile(fn, &ArrayAdaptor<rec, 9>);
 
     MatrixXd fish(ndetf-ndetf_nuis, ndetf-ndetf_nuis);
-    fish.setZero();
 
-    BOOST_FOREACH (rec ii, ll) {
-        fish(ii.get<0>(), ii.get<1>()) = ii.get<2>();
-        fish(ii.get<1>(), ii.get<0>()) = ii.get<2>();
-    }
+    for (int ii=0; ii < ndetf-ndetf_nuis; ++ii)
+        for (int jj=0; jj< ndetf-ndetf_nuis; ++jj)
+            fish(ii, jj) = ll[ii][jj];
 
     return fish;
 }
 
 
 void writeDETFFisher(std::string fn, const MatrixXd& mat) {
-    writeSymmMatrix_withIndices(fn, "%1$6i %2$6i %3$25.15e\n", mat);
+    writeMatrix(fn, " %1$25.15e", mat);
 }
 
 
