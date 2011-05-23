@@ -1,4 +1,4 @@
-/* Templated cosmological functions. These can use any baseline cosmology, as long as they
+/** Templated cosmological functions. These can use any baseline cosmology, as long as they
  * follow a basic interface design.
  * See the example implementations for examples of how to do this.
  * This structure avoids the clumsiness of an fully object oriented approach, but keeps the

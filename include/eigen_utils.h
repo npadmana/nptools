@@ -1,3 +1,5 @@
+/** Uitilities to handle Eigen matrices. */
+
 #ifndef EIGEN_UTILS_H
 #define EIGEN_UTILS_H
 

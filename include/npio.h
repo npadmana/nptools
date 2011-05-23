@@ -1,4 +1,4 @@
-/* IO helper routines
+/** IO helper routines
  * Nikhil Padmanabhan, Yale, May, 2011
  *
  * The principal routine here is readAsciiFile, which can be specialized using different adaptors.

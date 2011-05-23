@@ -1,3 +1,5 @@
+/** Wrappers for GSL */
+
 #ifndef GSLWRAP_H_
 #define GSLWRAP_H_ 
 
