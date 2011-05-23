@@ -12,7 +12,7 @@ using namespace Eigen;
 int main() {
     vector<string> fns;
     MatrixXd ff1(nfswg, nfswg), ff(nfswg, nfswg);
-    MatrixXd dfish1(ndetf, ndetf), dfish(ndetf, ndetf);
+    MatrixXd dfish1(ndetf, ndetf), dfish(ndetf-1, ndetf-1); // dfish accumulates only the non-SN parameters
     MatrixXd trans(nfswg, ndetf);
     ff.setZero();
     dfish.setZero();
@@ -31,6 +31,7 @@ int main() {
         ff1 = readFomSWG(fn+".dat");
         ff += ff1;
         dfish1 = trans.transpose() * ff1 * trans;
+        dfish1 = marginalizeSNparam(dfish1);
         writeDETFFisher(fn+"_detf.dat", dfish1);
         dfish += dfish1;
     }
@@ -67,7 +68,7 @@ int main() {
         dfish = delete_parameter(dfish, 8);
         // set up marginalization
         vector<int> params;
-        for (int ii = 2; ii < 9; ++ii) params.push_back(ii);
+        for (int ii = 2; ii < 8; ++ii) params.push_back(ii);
         detf2 = marginalize(dfish, params);
     }
 

@@ -23,6 +23,8 @@ double hubble(double a, detf c);
 Fswg detf2Fswg(detf c);
 Eigen::MatrixXd mkTransformMatrix();
 
+Eigen::MatrixXd marginalizeSNparam(const Eigen::MatrixXd& mat);
+
 void writeDETFFisher(std::string fn, const Eigen::MatrixXd& mat);
 
 #endif // WFIRST_DETF_H

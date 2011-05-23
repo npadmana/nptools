@@ -3,6 +3,7 @@
 #include <gslwrap.h>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
+#include "fisher_utils.h"
 
 using namespace std;
 using namespace Eigen;
@@ -109,4 +110,10 @@ void writeDETFFisher(std::string fn, const MatrixXd& mat) {
 }
 
 
+
+Eigen::MatrixXd marginalizeSNparam(const Eigen::MatrixXd& mat) {
+    vector<int> params;
+    params.push_back(9);
+    return marginalize(mat, params);
+}
 

@@ -80,7 +80,7 @@ MatrixXd marginalize(const MatrixXd& in, vector<int> params) {
         if (dd[ii] < 1.e-5) {
             cout << boost::format("WARNING! %1% parameter has a very small eigenvalue....\n")% ii;
             cout << "Printing out the corresponding terms for you to check.....\n";
-            cout << Fqr.col(ii) << endl;
+            cout << Fqr.col(ii).transpose() << endl;
             dd[ii] = 0.0;
         } else {
             dd[ii] = 1./dd[ii];
