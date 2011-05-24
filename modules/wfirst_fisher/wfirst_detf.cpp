@@ -38,7 +38,7 @@ double hubble(double a, detf x) {
     hh = x[4]/pow(a, 3) + x[3]*h20/pow(a, 2);
 
     // DE
-    double val = -3.0 * ((1.0+x[0] + x[1]) * log(a) - (1-a)*x[1]);
+    double val = -3.0 * ((1.0+x[0] + x[1]) * log(a) + (1-a)*x[1]);
     hh += x[2]*h20*exp(val);
 
     return hh;
