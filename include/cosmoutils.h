@@ -52,7 +52,7 @@ double propmotdis(double a, C cosmo) {
 
 template <class C> double lumdis(double a, C cosmo) {return propmotdis(a, cosmo)/a;}
 template <class C> double angdis(double a, C cosmo) {return propmotdis(a, cosmo)*a;}
-template <class C> double dm(double a, C cosmo) {return 5.0 * log10(lumdis(a, cosmo) + 25.0);}
+template <class C> double dm(double a, C cosmo) {return 5.0 * log10(lumdis(a, cosmo)) + 25.0;}
 
 
 // Simple fisher matrix routines below.
