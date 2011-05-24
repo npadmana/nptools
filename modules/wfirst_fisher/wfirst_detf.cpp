@@ -41,7 +41,7 @@ double hubble(double a, detf x) {
     double val = -3.0 * ((1.0+x[0] + x[1]) * log(a) + (1-a)*x[1]);
     hh += x[2]*h20*exp(val);
 
-    return hh;
+    return sqrt(hh);
 }
 
 Fswg detf2Fswg (detf c) {
