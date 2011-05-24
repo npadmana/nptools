@@ -1,4 +1,4 @@
 sandbox/build*
 modules/build*
 
-CMakeLists.txt.user
+CMakeLists.txt.user*
