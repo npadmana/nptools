@@ -40,13 +40,13 @@ int main(int argc, char** argv) {
    vector<myrec> ll = readAsciiFile(infn.getValue(), &TupleAdaptor<myrec, 2>);
 
    // Define the fisher matrix
-   MatrixXd dfish(ndetf, ndetf), dfish1(ndetf, ndetf);
+   MatrixXd dfish(ndetf, ndetf);
+   dfish.setZero();
    detf fid = fiducial();
    BOOST_FOREACH( myrec l1, ll) {
         double aa = 1./(1.+l1.get<0>());
         double ivar = 1./pow(l1.get<1>(),2);
-        dfish1 = mk_sn_fisher(aa, ivar, fid);
-        dfish += dfish1;
+        dfish += mk_sn_fisher(aa, ivar, fid);
    }
 
    // Now marginalize the SN paramater
