@@ -1,4 +1,7 @@
-sandbox/build*
-modules/build*
+sandbox/*build*
+modules/*build*
 
 CMakeLists.txt.user*
+doc/
+
+
