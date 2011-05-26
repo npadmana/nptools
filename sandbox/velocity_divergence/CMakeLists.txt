@@ -18,6 +18,5 @@ include_directories("$ENV{BOOST_DIR}/include")
 
 
 # EXAMPLES --- YOU NEED TO CHANGE THIS AS NECESSARY
-#add_executable (veldiv veldiv.cpp)
-
+add_executable (veldiv veldiv.cpp)
 add_executable (test_array test_array.cpp)
