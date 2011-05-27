@@ -1,4 +1,4 @@
-#include "gslhist.h"
+#include "gslwrap.h"
 
 using namespace std;
 using namespace Eigen;

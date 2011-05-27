@@ -11,6 +11,7 @@ set(CMAKE_INSTALL_PREFIX "$ENV{NPTOOLS_DIR}")
 
 # Includes
 include_directories("$ENV{BOOST_DIR}/include")
+include_directories("$ENV{EIGEN_DIR}")
 
 # Includes
 include_directories("$ENV{GSL_DIR}/include")
@@ -22,7 +23,7 @@ link_directories("$ENV{GSL_DIR}/lib")
 set(SOURCES gslhist.cpp)
 
 # LIBRARIES -- an example of how to build both static and shared libs
-add_library(npgsl ${SOURCES})
+add_library(npgsl SHARED ${SOURCES})
 target_link_libraries(npgsl ${GSL_LIBS})
 
 INSTALL (TARGETS npgsl
