@@ -39,6 +39,9 @@ class MA {
     static const size_type dimensionality = Array::dimensionality;
     typedef boost::array<boost::multi_array_types::index, dimensionality> IndexArr;
     typedef Matrix<typename Array::element, Dynamic, 1> vectype;
+    typedef Map< vectype > mapvectype;
+    typedef Matrix<typename Array::element, Dynamic, Dynamic> matrixtype;
+    typedef Map< matrixtype > mapmatrixtype;
 
    private :
     boost::shared_ptr<Array> ptr;
@@ -64,10 +67,15 @@ class MA {
      template <class IndexList> element& operator()(const IndexList& list ) const {return (*ptr)(list);}
      iterator begin() {return ptr->begin();}
      iterator end() {return ptr->end();}
-     //Array& operator()() {return *ptr;}
-     vectype operator()(){
+     mapvectype operator()() {
          if (!contiguous(*this)) throw std::runtime_error("automatic mapping not supported for noncontiguous vectors");
-         return Map<vectype>(ref(), num_elements());
+         return Map< vectype> (ref(), num_elements());
+     }
+     mapmatrixtype matrix() {
+         if (!contiguous(*this)) throw std::runtime_error("automatic mapping not supported for noncontiguous vectors");
+         int ncol = shape()[0];
+         int nrow = num_elements()/ncol;
+         return Map< matrixtype> (ref(), nrow, ncol);
      }
      reference operator[](index i) { return (*ptr)[i];}
      MA<reference> sub(index i) {
@@ -85,18 +93,7 @@ class MA {
          return std::accumulate(tmp.begin(), tmp.end(), origin());
 
      }
-     template <class ExtentList> void resize(const ExtentList& sizes) { (*ptr).resize(sizes); };
-     // Recast to an Eigen array. Useful!
-     template <class Eig> Eig eig2() {
-         if (dimensionality != 2) throw std::runtime_error("dim != 2");
-         if (!contiguous(*this)) throw std::runtime_error("automatic mapping not supported for noncontiguous vectors");
-         return Map<Eig>(ref(), shape()[1], shape()[0]); // Notice that we transpose
-     }
-     template <class Eig> Eig eig1() {
-         if (!contiguous(*this)) throw std::runtime_error("automatic mapping not supported for noncontiguous vectors");
-         return Map<Eig>(ref(), num_elements()); // Notice that we transpose
-     }
-
+     template <class ExtentList> void resize(const ExtentList& sizes) { (*ptr).resize(sizes);}
 
      // Simple arithmetic overloads
      void set(element x) { multi_for(*ptr, _1=x);}
