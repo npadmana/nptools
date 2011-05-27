@@ -6,4 +6,4 @@ modules/*build*
 CMakeLists.txt.user*
 doc/
 
-
+lib/
