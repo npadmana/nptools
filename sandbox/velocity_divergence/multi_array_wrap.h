@@ -1,17 +1,23 @@
 #ifndef MULTI_ARRAY_WRAP_H
 #define MULTI_ARRAY_WRAP_H
 
-
-#include <boost/multi_array.hpp>
-#include <boost/array.hpp>
-#include <boost/shared_ptr.hpp>
+#include <stdexcept>
+#include <algorithm>
 #include <boost/static_assert.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
+
+#include <boost/array.hpp>
+#include <boost/multi_array.hpp>
+
+#include <Eigen/Dense>
+
+#include <boost/shared_ptr.hpp>
+
+#include "np_functional.h"
 
 namespace ma {
 
 using namespace boost::lambda;
+using namespace Eigen;
 
 // Define some useful typedefs
 
@@ -30,6 +36,7 @@ class MA {
     typedef typename Array::index index;
     typedef typename Array::element element;
     static const size_type dimensionality = Array::dimensionality;
+    typedef boost::array<boost::multi_array_types::index, dimensionality> IndexArr;
 
    private :
     boost::shared_ptr<Array> ptr;
@@ -37,13 +44,17 @@ class MA {
    public :
     // Simple constructor
      MA(Array * p) : ptr(p) {}
+     MA()  { ptr = boost::shared_ptr<Array>( new Array()); }
+     template <class ExtentList> MA(const ExtentList& list) { ptr = boost::shared_ptr<Array> (new Array(list));}
+
 
 
      // Basic Accessor functions
      const size_type* shape() {return ptr->shape();}
      const index* strides() {return ptr->strides();}
      const index* index_bases() {return ptr->index_bases();}
-     const element* origin() {return ptr->a.origin();}
+     const element* origin() const {return ptr->origin();}
+     element* origin() {return ptr->origin();}
      size_type num_dimensions() {return ptr->num_dimensions();}
      size_type size() {return ptr->size();}
      template <class IndexList> element& operator()(const IndexList& list ) {return (*ptr)(list);}
@@ -59,28 +70,50 @@ class MA {
          return MA<A> ( new A((*ptr)[list]) ) ;
      }
      element* ref() {
-         boost::array<i_, dimensionality> tmp;
+         IndexArr tmp;
          // Correct for strides
          std::transform(index_bases(), index_bases() + dimensionality,
                         strides(), tmp.begin(), std::multiplies<index>());
          // add the sum of the products to the origin
          return std::accumulate(tmp.begin(), tmp.end(), origin());
+
      }
+     template <class ExtentList> void resize(const ExtentList& sizes) { (*ptr).resize(sizes); };
+     // Recast to an Eigen array. Useful!
+     template <class Eig> Eig eig2() {
+         if (dimensionality != 2) throw std::runtime_error("dim != 2");
+         if (!contiguous(*this)) throw std::runtime_error("automatic mapping not supported for noncontiguous vectors");
+         return Map<Eig>(ref(), shape()[1], shape()[0]); // Notice that we transpose
+     }
+     template <class Eig> Eig eig1() {
+         if (dimensionality != 2) throw std::runtime_error("dim != 2");
+         if (!contiguous(*this)) throw std::runtime_error("automatic mapping not supported for noncontiguous vectors");
+         return Map<Eig>(ref(), size()); // Notice that we transpose
+     }
+
 
      // Simple arithmetic overloads
      void set(element x) { multi_for(*ptr, _1=x);}
 
      // Note that we use the fact that we have a lightweight copy of MA objects
-     void operator+=(element x) { multi_for(*ptr, _1 += x);}
-     template <class A> void operator+=(MA<A> x) { multi_for(*ptr, x, _1 += _2);}
-     void operator-=(element x) { multi_for(*ptr, _1 -= x);}
-     template <class A> void operator-=(MA<A> x) { multi_for(*ptr, x, _1 -= _2);}
-     void operator*=(element x) { multi_for(*ptr, _1 *= x);}
-     template <class A> void operator*=(MA<A> x) { multi_for(*ptr, x, _1 *= _2);}
-     void operator/=(element x) { multi_for(*ptr, _1 /= x);}
-     template <class A> void operator/=(MA<A> x) { multi_for(*ptr, x, _1 /= _2);}
-     void operator%=(element x) { multi_for(*ptr, _1 %= x);}
-     template <class A> void operator%=(MA<A> x) { multi_for(*ptr, x, _1 %= _2);}
+     void operator+=(element x) { multi_for(*this, _1 += x);}
+     template <class A> void operator+=(MA<A> x) { multi_for(*this, x, _1 += _2);}
+     void operator-=(element x) { multi_for(*this, _1 -= x);}
+     template <class A> void operator-=(MA<A> x) { multi_for(*this, x, _1 -= _2);}
+     void operator*=(element x) { multi_for(*this, _1 *= x);}
+     template <class A> void operator*=(MA<A> x) { multi_for(*this, x, _1 *= _2);}
+     void operator/=(element x) { multi_for(*this, _1 /= x);}
+     template <class A> void operator/=(MA<A> x) { multi_for(*this, x, _1 /= _2);}
+     void operator%=(element x) { multi_for(*this, _1 %= x);}
+     template <class A> void operator%=(MA<A> x) { multi_for(*this, x, _1 %= _2);}
+
+
+     // Somewhat more complicated functions
+     element sum() {
+         element val=0;
+         multi_for(*this, var(val) += _1);
+         return val;
+     }
 
 
 
@@ -127,17 +160,9 @@ typedef array2f::array_view<2>::type  view2_2f;
 typedef array2f::array_view<1>::type  view2_1f;
 
 
-// 1D arrays
-typedef boost::multi_array<double, 1> array1d;
-typedef array1d::array_view<1>::type view1_1d;
-typedef boost::multi_array<float, 1> array1f;
-typedef array1f::array_view<1>::type view1_1f;
-typedef boost::multi_array<int, 1> array1i;
-typedef array1i::array_view<1>::type view1_1i;
-
 /////////////////////////////////////////////////////////////////////////////////
 template <class A, class B>
-bool compatible(A& x, B& y) {
+bool compatible(MA<A>& x, MA<B>& y) {
     if (A::dimensionality != B::dimensionality) return false;
     for (int ii=0; ii<A::dimensionality; ++ii)
         if (x.shape()[ii] > y.shape()[ii]) return false;
@@ -145,7 +170,13 @@ bool compatible(A& x, B& y) {
 }
 
 
-
+template <class A>
+bool contiguous(MA<A>& x) {
+    for (int ii=0; ii< A::dimensionality-1; ++ii)
+        if (x.strides()[ii] != x.shape()[ii+1]) return false;
+    if (x.strides()[A::dimensionality-1] != 1) return false;
+    return true;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -182,7 +213,7 @@ struct _multi_for<1> {
 
 /* A simple nested loop iterator */
 template <class MultiArray, class Functor>
-void multi_for(MultiArray& arr, Functor& f) {
+void multi_for(MA<MultiArray> arr, Functor& f) {
     _multi_for<MultiArray::dimensionality>() (arr, f);
 }
 
@@ -224,11 +255,10 @@ struct _multi_for2<1> {
 };
 
 /* A simple nested loop iterator */
-template <class MA1, class MA2, class Functor>
-void multi_for(MA1& arr1, MA2& arr2, Functor& f) {
-    BOOST_STATIC_ASSERT(MA1::dimensionality == MA2::dimensionality);
+template <class T1, class T2, class Functor>
+void multi_for(MA<T1> arr1, MA<T2> arr2, Functor& f) {
     if (!compatible(arr1, arr2) ) throw std::out_of_range("Arrays 1 and 2 are not compatible");
-    _multi_for2<MA1::dimensionality>() (arr1, arr2, f);
+    _multi_for2<T1::dimensionality>() (arr1, arr2, f);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -273,13 +303,11 @@ struct _multi_for3<1> {
 };
 
 /* A simple nested loop iterator */
-template <class MA1, class MA2, class MA3, class Functor>
-void multi_for(MA1& arr1, MA2& arr2, MA3& arr3, Functor& f) {
-    BOOST_STATIC_ASSERT(MA1::dimensionality == MA2::dimensionality);
-    BOOST_STATIC_ASSERT(MA1::dimensionality == MA3::dimensionality);
+template <class T1, class T2, class T3, class Functor>
+void multi_for(MA<T1> arr1, MA<T2> arr2, MA<T3>& arr3, Functor& f) {
     if (!compatible(arr1, arr2) ) throw std::out_of_range("Arrays 1 and 2 are not compatible");
     if (!compatible(arr1, arr3) ) throw std::out_of_range("Arrays 1 and 3 are not compatible");
-    _multi_for3<MA1::dimensionality>() (arr1, arr2, arr3, f);
+    _multi_for3<T1::dimensionality>() (arr1, arr2, arr3, f);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -322,8 +350,8 @@ struct _multi_for_native_indices<1> {
 
 /* A simple nested loop iterator */
 template <class MultiArray, class Functor>
-void multi_for_native_indices(MultiArray& arr, Functor& f) {
-    boost::array<i_, MultiArray::dimensionality> ilist;
+void multi_for_native_indices(MA<MultiArray> arr, Functor& f) {
+    typename MA<MultiArray>::IndexArr ilist;
     _multi_for_native_indices<MultiArray::dimensionality>() (arr, f, ilist, 0);
 }
 
@@ -367,43 +395,9 @@ struct _multi_for_indices<1> {
 
 /* A simple nested loop iterator */
 template <class MultiArray, class Functor>
-void multi_for_indices(MultiArray& arr, Functor& f) {
-    boost::array<i_, MultiArray::dimensionality> ilist;
+void multi_for_indices(MA<MultiArray> arr, Functor& f) {
+    typename MA<MultiArray>::IndexArr ilist;
     _multi_for_indices<MultiArray::dimensionality>() (arr, f, ilist, 0);
-}
-
-
-
-
-/***
-  * Operator helper functions
-  */
-
-
-
-
-
-/**
- * Useful convenience functions.
- */
-
-
-template<class T>
-class _sum {
-    private :
-     T acc;
-    public :
-     _sum(T init) {acc = init;}
-     void operator()(T& x) {acc += x;}
-     T operator()() {return acc;}
-};
-
-
-template <class MultiArray, class T>
-T sum(MultiArray& arr, T init) {
-    _sum<T> f(init);
-    multi_for(arr, f);
-    return f();
 }
 
 

@@ -51,11 +51,6 @@ int main() {
     cout << endl;
 
 
-    // Try a sum
-    cout << "Sum of full array " << sum(a1, double(0.0)) << endl;
-    cout << "Sum of subarray " << sum(a2, double(0.0)) << endl;
-
-
     // Do a more complicated fill
     multi_for_native_indices(a1, index_test<boost::array<i_, 3> >);
     multi_for(a1, cout << _1 << " ");

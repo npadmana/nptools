@@ -1,0 +1,12 @@
+0. Multi array wrap should give you all the simple type containers you should need.
+1. 1D arrays must be Eigen Vectors.
+   -- THE ONLY ALLOWED EXCEPTION ARE INDEX LISTS FOR MAs, which must be of type IndexArr.
+2. 2D arrays must be either MAs or Eigen Matrices
+3. >2D arrays must be MAs.
+4. MAs must be passed by value (note : no copying is done)
+5. Template specializations for MAs should restrict to MAs.
+6. Eigen containers should be passed by reference, or const_reference.
+7. Lambdas should ideally always be fitted into a boost::function. Anonymous lambdas are BAD.
+8. Prefer functors to free functions for objects returning values. "Procedures" can stay functions.
+9. Use STL algorithms *whenever* possible.
+10. However, don't obfuscate.
