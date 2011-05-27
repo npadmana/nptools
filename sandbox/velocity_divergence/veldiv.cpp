@@ -1,13 +1,10 @@
 #include <iostream>
 #include <cstdio>
-#include <stdexcept>
 #include <string>
-#include <vector>
-#include <algorithm>
-#include <numeric>
+#include <complex>
+
 #include <boost/format.hpp>
 #include <drfftw.h>
-#include <complex>
 
 #include "np_functional.h"
 #include "multi_array_wrap.h"
@@ -25,14 +22,14 @@ double Lbox = 2000.0;
 // Useful typedefs
 typedef complex<double> cdouble;
 typedef multi_array_ref<complex<double>, 4> ref4c;
-typedef array<i_, Ndim> indices3d;
+typedef MA<array3d>::IndexArr indices3d;
 
 // Convenience functions
 double _ki_impl(i_ ndx) { return (2.0*pi/Lbox)*(ndx > Ngrid/2  ? ndx - Ngrid : ndx);}
 boost::function<double(i_)> ki = _ki_impl;
 
 template <class A>
-void fftw_forward(A grid) {
+void fftw_forward(MA<A> grid) {
     const int Ng = grid.shape()[1];
     const int narr = grid.shape()[0];
 
@@ -48,15 +45,14 @@ void fftw_forward(A grid) {
     }
 
     // Normalize
-    double fac = 1./pow(static_cast<double>(Ng), 3);
-    grid /= fac;
+    grid /= (1./pow(static_cast<double>(Ng), 3));
 
     // Destroy
     rfftwnd_destroy_plan(plan);
 }
 
 template <class A>
-void fftw_reverse(A grid) {
+void fftw_reverse(MA<A> grid) {
     const int Ng = grid.shape()[1];
     const int narr = grid.shape()[0];
 
@@ -76,12 +72,9 @@ void fftw_reverse(A grid) {
 }
 
 double index2k(const indices3d& ilist) {
-    double retval;
-    array<double, 3> tmp;
-    transform(ilist.begin(), ilist.end(), tmp.begin(), ki);
-    boost::function <double (double, double) > k2 = (_2*_2) + _1; // square accumulator
-    retval = sqrt(accumulate(tmp.begin(), tmp.end(), 0.0, k2));
-    return retval;
+    Vector3d tmp;
+    transform(ilist.begin(), ilist.end(), tmp.data(), ki);
+    return tmp.norm();
 }
 
 
@@ -165,16 +158,17 @@ void cic (MA<Arr> grid, Coords& posvel, int idim=-1) {
    int Ng = grid.shape()[0]; // Assume cube
    BOOST_STATIC_ASSERT(Ndim == 3);
    Vector3i im, ip;
-   Vector3f dx;
+   Vector3f dx, x1;
 
    // It will be useful to consider the positions as an Eigen array
    MatrixXf epos = posvel.pos.eig2<MatrixXf>();
 
    double val;
    for (int ii = 0; ii < posvel.npart; ++ii) {
-       im = (Ng * epos.col(ii)).cast<int>(); // Slight ugliness due to casting
-       ip = im + Vector3i::Ones(); ip = ip.unaryExpr(_1%Ng); // % not defined in Eigen
-       dx = epos.col(ii)*Ng - im.cast<float>(); //slight ugliness due to casting
+       x1 = Ng*epos.col(ii);
+       im = x1.cast<int>(); // Slight ugliness due to casting
+       ip = im.array() + 1; ip = ip.unaryExpr(_1%Ng); // % not defined in Eigen
+       dx = x1 - im.cast<float>(); //slight ugliness due to casting
        if (idim >= 0) {val = posvel.vel[ii][idim];} else {val = 1;}
        grid[im[0]][im[1]][im[2]] += (1.0-dx[0])*(1.0-dx[1])*(1.0-dx[2])*val;
        grid[ip[0]][im[1]][im[2]] +=      dx[0] *(1.0-dx[1])*(1.0-dx[2])*val;
@@ -197,18 +191,14 @@ int main() {
 
     // Exercise the interface and code
     {
-//         MA<array1f> av(extents[Ndim]);
-//         av.set(0.0);
-//         for (int ii =0; ii < posvel.npart; ++ii) av += posvel.pos.sub(ii);
-//         av /= posvel.npart;
-//         cout << "Average position : ";
-//         multi_for(av, cout << _1 << " "); cout << endl;
+           Vector3f av;
+           MatrixXf epos = posvel.pos.eig2<MatrixXf>();
+           av = epos.rowwise().sum()/ posvel.npart;
+           cout << "Average position : " << av.transpose() << endl;
 
-//         av.set(0.0);
-//         for (int ii =0; ii < posvel.npart; ++ii) av += posvel.vel.sub(ii);
-//         av /= posvel.npart;
-//         cout << "Average velocity : ";
-//         multi_for(av, cout << _1 << " "); cout << endl;
+           MatrixXf evel = posvel.vel.eig2<MatrixXf>();
+           av = evel.rowwise().sum()/ posvel.npart;
+           cout << "Average velocity : " << av.transpose() << endl;
     }
 
 
@@ -235,8 +225,7 @@ int main() {
     for (int ii=1; ii < 4; ++ii) {
         nzeros = 0;
         boost::function < void(double&, double&) > ff = if_(_2 > 0)[_1 /= _2].else_[var(nzeros)++];
-        MA<array4d::reference> v1 = rgrid.sub(ii);
-        multi_for(v1, dense,ff);
+        multi_for(rgrid.sub(ii), dense,ff);
         cout << boost::format("%1$6i %2$20.10f %3$10i\n") % ii % (rgrid.sub(ii).sum()*Lbox) % nzeros;
        }
     // Normalize the density by rho_mean
