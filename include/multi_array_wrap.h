@@ -165,7 +165,7 @@ typedef array2f::array_view<1>::type  view2_1f;
 
 /////////////////////////////////////////////////////////////////////////////////
 template <class A, class B>
-bool compatible(MA<A>& x, MA<B>& y) {
+bool compatible(MA<A> x, MA<B> y) {
     if (A::dimensionality != B::dimensionality) return false;
     for (int ii=0; ii<A::dimensionality; ++ii)
         if (x.shape()[ii] > y.shape()[ii]) return false;
@@ -174,10 +174,13 @@ bool compatible(MA<A>& x, MA<B>& y) {
 
 
 template <class A>
-bool contiguous(MA<A>& x) {
-    for (int ii=0; ii< A::dimensionality-1; ++ii)
-        if (x.strides()[ii] != x.shape()[ii+1]) return false;
+bool contiguous(MA<A> x) {
     if (x.strides()[A::dimensionality-1] != 1) return false;
+    i_ tmp=1;
+    for (int ii=A::dimensionality-1; ii > 0; --ii) {
+        tmp *= x.shape()[ii];
+        if (x.strides()[ii-1] != tmp) return false;
+       }
     return true;
 }
 
