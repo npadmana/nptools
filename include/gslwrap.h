@@ -1,5 +1,6 @@
 /** \file
- * Wrappers for GSL */
+ * Wrappers for GSL
+*/
 
 #ifndef GSLWRAP_H_
 #define GSLWRAP_H_ 
@@ -42,7 +43,10 @@ gsl_function convertToGslFunction( const F& f )
     return gslFunction;
 }
 
-
+/**
+* Function integration
+*
+*/
 template<class F, int N=1000, int abs=-50, int rel=-20>
 class Integrate {
     private :
@@ -50,6 +54,8 @@ class Integrate {
         gsl_function ff;
         double epsabs, epsrel;
     public :
+      /// Set up integrator with function/functor f
+      ///
       Integrate(const F& f) {
           ff = convertToGslFunction(f);
           wk = gsl_integration_workspace_alloc(N);
@@ -58,6 +64,8 @@ class Integrate {
       ~Integrate() {
           gsl_integration_workspace_free(wk);
       }
+      /// Actually return the integral from lo to hi
+      ///
       double operator()(double lo, double hi) {
           double result, err;
           gsl_integration_qags(&ff, lo, hi, epsabs, epsrel, N, wk, &result, &err);
@@ -66,7 +74,9 @@ class Integrate {
 };
 
 
-/* Derivatives  - dir specifies the type, 0 = central, 1=forward, -1=reverse */
+/**
+ Derivatives  - dir specifies the type, 0 = central, 1=forward, -1=reverse
+*/
 template<class F, int dir=0>
 class Diff {
     private :
