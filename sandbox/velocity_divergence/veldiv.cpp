@@ -8,6 +8,8 @@
 
 #include "np_functional.h"
 #include "multi_array_wrap.h"
+#include "gslwrap.h"
+#include "eigen_utils.h"
 
 using namespace std;
 using namespace boost;
@@ -45,7 +47,7 @@ void fftw_forward(MA<A> grid) {
     }
 
     // Normalize
-    grid /= (1./pow(static_cast<double>(Ng), 3));
+    grid /= pow(static_cast<double>(Ng), 3);
 
     // Destroy
     rfftwnd_destroy_plan(plan);
@@ -77,6 +79,46 @@ double index2k(const indices3d& ilist) {
     return tmp.norm();
 }
 
+// Functor to compute k_{i} v_{i}
+struct kdot_impl {
+    int idim;
+    void operator()(cdouble& val, const indices3d& ilist) {
+        val *= ki(ilist[idim]);
+    }
+};
+
+class PkStruct : public GSLHist {
+    public :
+       void operator()(const cdouble& val, const indices3d& ilist);
+       MatrixXd pk(bool vel=false);
+};
+
+void PkStruct::operator()(const cdouble& val, const indices3d& ilist) {
+    double kk = index2k(ilist);
+    add(log(kk), norm(val));
+}
+
+MatrixXd PkStruct::pk(bool vel) {
+    // Get the histogram outputs
+    MatrixXd retval = val();
+    int nrows = retval.rows();
+
+    // I hate log outputs, convert to a human readable format
+    retval.col(0) = retval.col(0).array().exp();
+    retval.col(1) = retval.col(1).array().exp();
+
+    //Normalize
+    retval.col(2) *= pow(Lbox, 3);
+    if (vel) retval.col(2) *= pow(Lbox, 2); // Account for the fact that the velocities were in box units
+
+    // Divide by n, taking care not to divide by zero
+    boost::function< double(double, double) > nicedivide = if_then_else_return(_2 > 0, _1/_2, 0.0);
+    transform(retval.col(2).data(), retval.col(2).data() + nrows,
+              retval.col(3).data(), retval.col(2).data(),
+              nicedivide);
+
+    return retval;
+}
 
 
 
@@ -161,7 +203,7 @@ void cic (MA<Arr> grid, Coords& posvel, int idim=-1) {
    Vector3f dx, x1;
 
    // It will be useful to consider the positions as an Eigen array
-   MatrixXf epos = posvel.pos.eig2<MatrixXf>();
+   Map< MatrixXf > epos = posvel.pos.matrix();
 
    double val;
    for (int ii = 0; ii < posvel.npart; ++ii) {
@@ -184,7 +226,6 @@ void cic (MA<Arr> grid, Coords& posvel, int idim=-1) {
 
 int main() {
 
-
     // read in the file
     Coords posvel("dm_1.0000.bin");
     cout << "Read in " << posvel.npart << " particles\n";
@@ -192,17 +233,17 @@ int main() {
     // Exercise the interface and code
     {
            Vector3f av;
-           MatrixXf epos = posvel.pos.eig2<MatrixXf>();
+           Map< MatrixXf > epos = posvel.pos.matrix();
            av = epos.rowwise().sum()/ posvel.npart;
            cout << "Average position : " << av.transpose() << endl;
 
-           MatrixXf evel = posvel.vel.eig2<MatrixXf>();
+           Map< MatrixXf > evel = posvel.vel.matrix();
            av = evel.rowwise().sum()/ posvel.npart;
            cout << "Average velocity : " << av.transpose() << endl;
     }
 
 
-    // Now define the grid
+    // Define the grid
     MA<array4d> grid(extents[4][Ngrid][Ngrid][Ngrid+2]); // Pad for FFT, 1 component for overdensity, 3 for velocity
     // Define views on this grid
     MA<view4_4d> rgrid = grid.view<view4_4d>(indices[r_()][r_()][r_()][r_(0, Ngrid)]);
@@ -229,11 +270,45 @@ int main() {
         cout << boost::format("%1$6i %2$20.10f %3$10i\n") % ii % (rgrid.sub(ii).sum()*Lbox) % nzeros;
        }
     // Normalize the density by rho_mean
+    cout << dense.sum() << endl;
     dense /= static_cast<double>(posvel.npart)/pow( static_cast<double>(Ngrid), 3);
+    cout << dense.sum() << endl;
 
 
     // FFT
     fftw_forward(grid);
+
+
+    // Compute k_i v_i for each grid separately
+    kdot_impl kdot;
+    for (int ii=1; ii < 4; ++ii) {
+        kdot.idim = ii-1;
+        multi_for_native_indices(cgrid.sub(ii), kdot);
+    }
+
+    // Now add the vectors together --- things are contiguous, so go ahead and use the
+    // easy route
+    cgrid.sub(1)() += cgrid.sub(2)() + cgrid.sub(3)();
+    // This should be what we need modulo normalization factors
+
+    // Compute P(k)
+    PkStruct pk;
+    double lkmin = log(0.008); double lkmax = log(0.3);
+    pk.setbins(lkmin, lkmax, 20);
+
+
+    // Do the matter power spectrum
+    multi_for_native_indices(cgrid.sub(0), pk);
+    cout << pk.pk() << endl;
+    writeMatrix("pk_matter.dat", "%1$10.4e ", pk.pk());
+
+    // Do the velocity power spectrum
+    pk.reset();
+    multi_for_native_indices(cgrid.sub(1), pk);
+    cout << pk.pk(true) << endl; // The true adds in the correct velocity normalization
+    writeMatrix("pk_theta.dat", "%1$10.4e ", pk.pk(true));
+
+
 
 
 }
