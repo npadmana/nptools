@@ -4,7 +4,7 @@
 #ifndef EIGEN_UTILS_H
 #define EIGEN_UTILS_H
 
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 #include <string>
 #include <fstream>
 #include <boost/format.hpp>
