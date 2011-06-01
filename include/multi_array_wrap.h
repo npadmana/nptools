@@ -310,7 +310,7 @@ struct _multi_for3<1> {
 
 /* A simple nested loop iterator */
 template <class T1, class T2, class T3, class Functor>
-void multi_for(MA<T1> arr1, MA<T2> arr2, MA<T3>& arr3, Functor& f) {
+void multi_for(MA<T1> arr1, MA<T2> arr2, MA<T3> arr3, Functor& f) {
     if (!compatible(arr1, arr2) ) throw std::out_of_range("Arrays 1 and 2 are not compatible");
     if (!compatible(arr1, arr3) ) throw std::out_of_range("Arrays 1 and 3 are not compatible");
     _multi_for3<T1::dimensionality>() (arr1, arr2, arr3, f);
