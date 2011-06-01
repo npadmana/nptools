@@ -87,18 +87,25 @@ struct kdot_impl {
     }
 };
 
+// Functor to compute x* y and store it in z
+struct complex_mult_impl {
+    void operator()(cdouble& x, cdouble& y, cdouble& z) {
+        z = conj(x) * y;
+    }
+};
+
 class PkStruct : public GSLHist {
     public :
        void operator()(const cdouble& val, const indices3d& ilist);
-       MatrixXd pk(bool vel=false);
+       MatrixXd pk(double norm=1.0);
 };
 
 void PkStruct::operator()(const cdouble& val, const indices3d& ilist) {
     double kk = index2k(ilist);
-    add(log(kk), norm(val));
+    add(log(kk), real(val));
 }
 
-MatrixXd PkStruct::pk(bool vel) {
+MatrixXd PkStruct::pk(double norm) {
     // Get the histogram outputs
     MatrixXd retval = val();
     int nrows = retval.rows();
@@ -108,8 +115,7 @@ MatrixXd PkStruct::pk(bool vel) {
     retval.col(1) = retval.col(1).array().exp();
 
     //Normalize
-    retval.col(2) *= pow(Lbox, 3);
-    if (vel) retval.col(2) *= pow(Lbox, 2); // Account for the fact that the velocities were in box units
+    retval.col(2) *= pow(Lbox, 3) * norm;
 
     // Divide by n, taking care not to divide by zero
     boost::function< double(double, double) > nicedivide = if_then_else_return(_2 > 0, _1/_2, 0.0);
@@ -296,6 +302,14 @@ int main() {
     double lkmin = log(0.008); double lkmax = log(0.3);
     pk.setbins(lkmin, lkmax, 20);
 
+    // We want to compute delta* delta, delta* theta, and theta* theta
+    complex_mult_impl cmult;
+    // First do delta* theta -- and store this in cgrid.sub(2)
+    multi_for(cgrid.sub(0), cgrid.sub(1), cgrid.sub(2), cmult);
+    // delta* delta and theta* theta -- store in place
+    multi_for(cgrid.sub(0), cgrid.sub(0), cgrid.sub(0), cmult); // We do it this way to make the connection clear with delta* theta
+    multi_for(cgrid.sub(1), cgrid.sub(1), cgrid.sub(1), cmult); // We do it this way to make the connection clear with delta* theta
+
 
     // Do the matter power spectrum
     multi_for_native_indices(cgrid.sub(0), pk);
@@ -305,10 +319,16 @@ int main() {
     // Do the velocity power spectrum
     pk.reset();
     multi_for_native_indices(cgrid.sub(1), pk);
-    cout << pk.pk(true) << endl; // The true adds in the correct velocity normalization
-    writeMatrix("pk_theta.dat", "%1$10.4e ", pk.pk(true));
+    double fac; fac = pow(Lbox, 2);
+    cout << pk.pk(fac) << endl; // The true adds in the correct velocity normalization
+    writeMatrix("pk_theta.dat", "%1$10.4e ", pk.pk(fac));
 
 
-
+    // Do the cross power spectrum
+    pk.reset();
+    multi_for_native_indices(cgrid.sub(2), pk);
+    fac = Lbox;
+    cout << pk.pk(fac) << endl; // The true adds in the correct velocity normalization
+    writeMatrix("pk_delta_theta.dat", "%1$10.4e ", pk.pk(fac));
 
 }
