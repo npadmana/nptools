@@ -18,6 +18,7 @@ using namespace ma;
 
 const int Ndim = 3;		// particles live in 3 dimensions
 const double pi = atan(1.0)*4.0;
+const complex<double> negcomplexi(0.0, -1.0);
 int Ngrid = 128; // Keep these non-constant so that we might change them.
 double Lbox = 2000.0;
 
@@ -83,7 +84,7 @@ double index2k(const indices3d& ilist) {
 struct kdot_impl {
     int idim;
     void operator()(cdouble& val, const indices3d& ilist) {
-        val *= ki(ilist[idim]);
+        val *= ki(ilist[idim]) * negcomplexi;
     }
 };
 
