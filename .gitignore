@@ -1,7 +1,9 @@
 *.swp
 
 sandbox/*build*
+sandbox/*/*build*
 modules/*build*
+modules/*/*build*
 
 CMakeLists.txt.user*
 doc/
