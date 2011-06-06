@@ -26,7 +26,7 @@ detf fiducial() {
     return x;
 }
 
-double Omega_K(detf x) {return x[3];}
+double Omega_K0(detf x) {return x[3];}
 
 double hubble(double a, detf x) {
     double OmegaM0 = 1.0 - x[2] - x[3];

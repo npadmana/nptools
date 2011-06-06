@@ -35,7 +35,7 @@ double comdis(double a, C cosmo) {
 // Proper motion distance
 template <class C>
 double propmotdis(double a, C cosmo) {
-  double OmK = Omega_K(cosmo);
+  double OmK = Omega_K0(cosmo);
   double hval = hubble(1.0, cosmo);
   double omK = OmK * hval * hval;
   double somK = sqrt(abs(omK));

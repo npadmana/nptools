@@ -23,7 +23,7 @@ typedef boost::array<double, nfswg> Fswg;
 Fswg Fiducial();
 
 // Return Omega_K at z=0
-double Omega_K(Fswg cosmo);
+double Omega_K0(Fswg cosmo);
 
 // Return the hubble parameter at scale factor a
 // in units of 100 km/s/Mpc

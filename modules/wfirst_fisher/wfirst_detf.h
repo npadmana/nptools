@@ -14,7 +14,7 @@ const int ndetf_nuis = 1; // the SN param
 typedef boost::array<double, ndetf> detf;
 
 detf fiducial();
-double Omega_K(detf c);
+double Omega_K0(detf c);
 double hubble(double a, detf c);
 
 /*** The basic interface ends here ***/
