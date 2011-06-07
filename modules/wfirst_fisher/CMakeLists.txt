@@ -10,6 +10,7 @@ include_directories("$ENV{NPTOOLS_DIR}/include")
 
 # Includes
 include_directories("$ENV{BOOST_DIR}/include")
+include_directories("$ENV{EIGEN_DIR}")
 
 # Includes
 include_directories("$ENV{GSL_DIR}/include")
@@ -32,8 +33,14 @@ target_link_libraries(fomswg_stage3 wfirst_fisher)
 add_executable(fomswg_to_detf fomswg_to_detf.cpp)
 target_link_libraries(fomswg_to_detf wfirst_fisher)
 
+add_executable(fomswg2detf fomswg2detf.cpp)
+target_link_libraries(fomswg2detf wfirst_fisher)
+
 add_executable(combine_detf_fisher combine_detf_fisher.cpp)
 target_link_libraries(combine_detf_fisher wfirst_fisher)
+
+add_executable(combine_fomswg_fisher combine_fomswg_fisher.cpp)
+target_link_libraries(combine_fomswg_fisher wfirst_fisher)
 
 add_executable(mk_sn_fisher mk_sn_fisher.cpp)
 target_link_libraries(mk_sn_fisher wfirst_fisher)
