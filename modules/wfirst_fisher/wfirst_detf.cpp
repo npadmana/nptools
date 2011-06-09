@@ -62,7 +62,7 @@ Fswg detf2Fswg (detf c) {
     // Now we do the DE EoS parameters
     double aa;
     for (int ii=9; ii < nfswg; ++ii) {
-        aa = 1.0 - 0.025*ii - 0.0125;
+        aa = 1.0 - 0.025*(ii-9) - 0.0125;
         x[ii] = c[0] + (1.0-aa)*c[1];
     }
 
