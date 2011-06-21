@@ -7,6 +7,7 @@ PROJECT (wfirst_fisher)
 
 # Includes 
 include_directories("$ENV{NPTOOLS_DIR}/include")
+link_directories("$ENV{NPTOOLS_DIR}/lib")
 
 # Includes
 include_directories("$ENV{BOOST_DIR}/include")
@@ -19,7 +20,7 @@ link_directories("$ENV{GSL_DIR}/lib")
 
 
 # EXAMPLES --- YOU NEED TO CHANGE THIS AS NECESSARY
-set(SOURCES fomswg.cpp fisher_utils.cpp wfirst_detf.cpp)
+set(SOURCES fomswg.cpp fisher_utils.cpp wfirst_detf.cpp zspace.cpp)
 
 
 # LIBRARIES -- an example of how to build both static and shared libs
@@ -47,3 +48,6 @@ target_link_libraries(mk_sn_fisher wfirst_fisher)
 
 add_executable(test_detf_cosmology test_detf_cosmology.cpp)
 target_link_libraries(test_detf_cosmology wfirst_fisher)
+
+add_executable(unittest unittest.cpp)
+target_link_libraries(unittest wfirst_fisher gtest gtest_main ${GSL_LIBS})
