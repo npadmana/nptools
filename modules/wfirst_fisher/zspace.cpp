@@ -55,14 +55,10 @@ void zspace_mbias_pk  (
 
   int NPOW = NSAMP*(NSAMP+1)/2;
 
-  //gsl_matrix *bigfish = gsl_matrix_calloc(NSAMP+1,NSAMP+1);
   MatrixXd bigfish(NSAMP+1, NSAMP+1);
   bigfish.setZero(NSAMP+1, NSAMP+1);
   double *Ps      = (double*)calloc(NSAMP,sizeof(double));
   double *err     = (double*)calloc(NSAMP,sizeof(double));
-  //gsl_matrix *cov     = gsl_matrix_calloc(NPOW,NPOW);
-  //gsl_matrix *icov    = gsl_matrix_calloc(NPOW,NPOW);
-  //gsl_matrix *dPdp    = gsl_matrix_calloc(NPOW,NSAMP+1);
   MatrixXd cov(NPOW, NPOW), icov(NPOW, NPOW), dPdp(NPOW, NSAMP+1);
 
   // integral over kmax
@@ -96,21 +92,13 @@ void zspace_mbias_pk  (
 	    for(m=l;m<NSAMP;m++) {
 	      jp++;
 
-//	      int index = ip*NPOW + jp;
 
 	      if(ip==jp) {
 		// diagonal elements
-                //if(i==j) cov->data[index] = 2.*Ps[i]*Ps[j]*err[i]*err[j];
                 if(i==j) cov(ip, jp) = 2.*Ps[i]*Ps[j]*err[i]*err[j];
-                //if(i!=j) cov->data[index] = Ps[i]*Ps[j] + Ps[i]*Ps[j]*err[i]*err[j];
                 if(i!=j) cov(ip, jp) = Ps[i]*Ps[j] + Ps[i]*Ps[j]*err[i]*err[j];
               } else {
 		// off-diagonal elements
-//		cov->data[index] = 2.*sqrt(Ps[i]*Ps[j]*Ps[l]*Ps[m]);
-//		if(i==j && (i==l || i==m)) cov->data[index] *= err[i];
-//		if(l==m && (l==i || l==j)) cov->data[index] *= err[l];
-//		if(i!=j && l!=m && (i==l || i==m)) cov->data[index] = 0.5*cov->data[index]*(1.+err[i]);
-//		if(i!=j && l!=m && (j==l || j==m)) cov->data[index] = 0.5*cov->data[index]*(1.+err[j]);
                 cov(ip, jp) = 2.*sqrt(Ps[i]*Ps[j]*Ps[l]*Ps[m]);
                 if(i==j && (i==l || i==m)) cov(ip, jp) *= err[i];
                 if(l==m && (l==i || l==j)) cov(ip, jp) *= err[l];
@@ -134,56 +122,15 @@ void zspace_mbias_pk  (
       
       // invert covariance matrix
       icov = cov.inverse();
-//      int signum;
-//      gsl_permutation *p = gsl_permutation_alloc(NPOW);
-//      gsl_linalg_LU_decomp(cov,p,&signum);
-//      gsl_linalg_LU_invert(cov,p,icov);
-//      gsl_permutation_free(p);
-
       // now calculate Fisher matrix					
-//      for(l=0;l<NSAMP+1;l++)
-//	for(m=0;m<NSAMP+1;m++) {
-//	  double fish = 0.0;
-//	  int index_fish = l*(NSAMP+1) + m;
-//	  for(i=0;i<NPOW;i++)
-//	    for(j=0;j<NPOW;j++)
-//	      fish += icov->data[i*NPOW+j]*dPdp->data[i*(NSAMP+1)+l]*dPdp->data[j*(NSAMP+1)+m];
-//	  fish *= k*k*vol_mpc;
-//	  bigfish->data[index_fish] += fish;
-//	}
-
       bigfish += (dPdp.transpose() * icov * dPdp)*(k*k*vol_mpc);
-
-
-      //cout << ":" << k << endl << bigfish << endl << cov << endl << icov << endl << dPdp << endl;
       
     }
   }
   bigfish *= 2.0/4.0/M_PI/M_PI*kstep*mustep;
   invfish = bigfish.inverse();
-    
-  // final constant multiplicative terms in double integration
-//  for(l=0;l<NSAMP+1;l++)
-//    for(m=0;m<NSAMP+1;m++) {
-//      int index_fish = l*(NSAMP+1) + m;
-//      bigfish->data[index_fish] *= 2.0/4.0/M_PI/M_PI*kstep*mustep;
-//    }
-
-//  // invert the Fisher matrix
-//  int signum;
-//  gsl_permutation *p = gsl_permutation_alloc(NSAMP+1);
-//  gsl_linalg_LU_decomp(bigfish,p,&signum);
-//  gsl_linalg_LU_invert(bigfish,p,invfish);
-//  gsl_permutation_free(p);
-
-//  // free memory
-//  gsl_matrix_free(bigfish);
   free(Ps);
   free(err);
-//  gsl_matrix_free(cov);
-//  gsl_matrix_free(icov);
-//  gsl_matrix_free(dPdp);
-
 }
 
 // Transfer function of Eisenstein & Hu 1998 
