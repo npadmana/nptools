@@ -19,8 +19,6 @@
 
 #include "zspace.h"
 #include <math.h>
-#include <gsl/gsl_math.h>
-#include <iostream>
 
 using namespace std;
 using namespace Eigen;

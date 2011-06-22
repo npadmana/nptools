@@ -1,6 +1,5 @@
 #ifndef ZSPACE_H
 #define ZSPACE_H
-#include <gsl/gsl_linalg.h>
 #include <Eigen/Dense>
 
 void zspace_mbias_pk  (
