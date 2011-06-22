@@ -14,6 +14,17 @@
 using namespace std;
 using namespace Eigen;
 
+MatrixXd mk_lnfD_fisher(double aa, double ivar, detf cosmo0) {
+    MatrixXd fish(ndetf, ndetf);
+    vector<double> dtable = mk_deriv_table(lnfD, aa, ndetf, cosmo0);
+
+    for (int ii=0; ii < ndetf; ++ii)
+        for (int jj=ii; jj < ndetf; ++jj)
+            fish(ii, jj) = fish(jj, ii) = ivar*dtable[ii]*dtable[jj];
+
+     return fish;
+}
+
 int main(int argc, char** argv) {
 
    // Read in the command line
@@ -56,13 +67,13 @@ int main(int argc, char** argv) {
         zspace_mbias_pk(nvec, s8, bvec, fval, 0.0, vol, 0.1, cov);
         ivar = pow(fval*s8,2)/cov(1,1);
         cout << boost::format("%1$4.2f %2$4.2f %3$4.2f %4$6.3f %5$8.4e %6$8.4e\n") % z0 % dz % bias1 % fval % vol % ivar;
-//        dfish += mk_sn_fisher(aa, ivar, fid);
+        dfish += mk_lnfD_fisher(aa, ivar, fid);
    }
 
    // Now marginalize the SN paramater
-   //dfish  = marginalizeSNparam(dfish);
+   dfish  = marginalizeSNparam(dfish);
 
    // Write this out
-   //writeDETFFisher(outfn.getValue(), dfish);
+   writeDETFFisher(outfn.getValue(), dfish);
 
 }

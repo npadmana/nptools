@@ -121,3 +121,6 @@ Eigen::MatrixXd marginalizeSNparam(const Eigen::MatrixXd& mat) {
 
 double snmag(double a, detf cosmo) {return dm(a, cosmo) + cosmo[9];}
 
+double lnfD(double a, detf cosmo) {
+    return log(fgrowth(a, cosmo)*growth(a,cosmo));
+}
