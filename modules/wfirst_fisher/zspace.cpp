@@ -57,7 +57,7 @@ void zspace_mbias_pk  (
   int NPOW = NSAMP*(NSAMP+1)/2;
 
   MatrixXd bigfish(NSAMP+1, NSAMP+1);
-  bigfish.setZero(NSAMP+1, NSAMP+1);
+  bigfish.setZero();
   VectorXd Ps(NSAMP), err(NSAMP);
   MatrixXd cov(NPOW, NPOW), icov(NPOW, NPOW), dPdp(NPOW, NSAMP+1);
 

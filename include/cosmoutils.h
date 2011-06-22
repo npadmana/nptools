@@ -104,7 +104,8 @@ template <class C> double dm(double a, C cosmo) {return 5.0 * log10(lumdis(a, co
 template <class C>
 double vol(double a, C cosmo) {
     double OmK = Omega_K0(cosmo);
-    double DM = comdis(a, cosmo)/hubble(1.0, cosmo);
+    double h = hubble(1.0, cosmo);
+    double DM = comdis(a, cosmo)*h;
 
     // Define some temporaries and compute 'em
     double f1, f2, sOmK, vol;
@@ -115,14 +116,16 @@ double vol(double a, C cosmo) {
     // Now handle the various cases
     if (OmK < 1.e-5) {
         // Flat
-        vol = 1./3.;
+        vol = 1./3. * pow(DM, 3);
     } else if (OmK < 0) {
         vol = f1 - asin(f2)/sOmK;
+        vol /= (-2.0*OmK);
     } else {
         vol = f1 - asinh(f2)/sOmK;
+        vol /= (2.0*OmK);
     }
 
-    return vol;
+    return vol/pow(h, 3);
 }
 
 // We define a whole suite of overloaded volume calculations
@@ -142,7 +145,7 @@ double shellVol_Gpc_h(double a0, double a1, double area, C cosmo) {
     double str2deg2 = pow(45/atan(1.0), 2);
     area /= str2deg2;
     double h3 = pow(hubble(1.0, cosmo), 3); // h^3
-    return area * 27.0* shellVol(a0, a1, cosmo)/h3;
+    return area * 27.0* shellVol(a0, a1, cosmo) * h3;
 }
 
 // Same as previous, but in (Mpc/h)^3

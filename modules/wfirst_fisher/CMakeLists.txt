@@ -46,6 +46,9 @@ target_link_libraries(combine_fomswg_fisher wfirst_fisher)
 add_executable(mk_sn_fisher mk_sn_fisher.cpp)
 target_link_libraries(mk_sn_fisher wfirst_fisher)
 
+add_executable(mk_rsd_fisher mk_rsd_fisher.cpp)
+target_link_libraries(mk_rsd_fisher wfirst_fisher)
+
 add_executable(test_detf_cosmology test_detf_cosmology.cpp)
 target_link_libraries(test_detf_cosmology wfirst_fisher)
 
