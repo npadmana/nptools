@@ -28,10 +28,9 @@ using namespace Eigen;
 double tk_eh98(double);
 
 void zspace_mbias_pk  ( 
-		      const int NSAMP, // number of samples
-		      double *nbar,    // The number density in h^3 Mpc^-3
+                      const VectorXd & nbar,    // The number density in h^3 Mpc^-3
 		      double sigma8,   // The real-space, linear clustering amplitude
-		      double *bias,    // The real-space, linear bias
+                      const VectorXd & bias,    // The real-space, linear bias
 		      double f,	       // f ~ Omega_m^(0.6) 
 		      double Sigma_z,  // z error translated into comoving distance
 		      double vol_mpc,  // The survey volume in h^-3 Mpc^3
@@ -42,6 +41,10 @@ void zspace_mbias_pk  (
   // variables
   double k, mu;
   int is, i, j, s, l, m;
+
+  // make sure things have the same size
+  const int NSAMP = nbar.size();
+  if (bias.size() != NSAMP) { fprintf(stderr, "bias and nbar should be compatible"); exit(0);}
 
   // catcher to avoid problems caused by odd inputs
   if(vol_mpc<=0.0) { fprintf(stderr,"volume<0"); exit(0); }
@@ -57,8 +60,7 @@ void zspace_mbias_pk  (
 
   MatrixXd bigfish(NSAMP+1, NSAMP+1);
   bigfish.setZero(NSAMP+1, NSAMP+1);
-  double *Ps      = (double*)calloc(NSAMP,sizeof(double));
-  double *err     = (double*)calloc(NSAMP,sizeof(double));
+  VectorXd Ps(NSAMP), err(NSAMP);
   MatrixXd cov(NPOW, NPOW), icov(NPOW, NPOW), dPdp(NPOW, NSAMP+1);
 
   // integral over kmax
@@ -129,8 +131,6 @@ void zspace_mbias_pk  (
   }
   bigfish *= 2.0/4.0/M_PI/M_PI*kstep*mustep;
   invfish = bigfish.inverse();
-  free(Ps);
-  free(err);
 }
 
 // Transfer function of Eisenstein & Hu 1998 
