@@ -31,9 +31,12 @@ int main(int argc, char** argv) {
    TCLAP::CmdLine cmd("Generate an RSD fisher matrix",' ', "0.0");
    TCLAP::ValueArg<double> fsky("f", "fsky", "fraction of sky", true, 1.0, "fraction of sky [0.0, 1.0]");
    TCLAP::ValueArg<double> sigma8("s", "sigma8", "sigma8", false, 0.8, "sigma8");
+   TCLAP::ValueArg<double> kmax("k", "kmax", "kmax", false, 0.1, "kmax");
    TCLAP::UnlabeledValueArg<string> infn("infn", "RSD input file (z, dz, nbar, bias)", true, "","RSD input filename (z, dz, nbar, bias)");
    TCLAP::UnlabeledValueArg<string> outfn("outfn", "RSD fisher file", true, "","RSD fisher filename");
    cmd.add(fsky);
+   cmd.add(sigma8);
+   cmd.add(kmax);
    cmd.add(infn);
    cmd.add(outfn);
    cmd.parse(argc, argv);
@@ -48,6 +51,7 @@ int main(int argc, char** argv) {
    const double pi = 4.0*atan(1.0);
    double area = fsky.getValue() * (4.0*pi) * (180.0/pi) * (180.0/pi);
    cout << ".. corresponding to an area (in sq. deg.) = " << area << endl;
+   cout << "Using kmax = " << kmax.getValue() << endl;
 
    // Define the fisher matrix
    MatrixXd dfish(ndetf, ndetf);
@@ -64,7 +68,7 @@ int main(int argc, char** argv) {
         vol = shellVol_Mpc_h(amin, amax, area, fid);
         fval = fgrowth(aa, fid);
         nvec[0] = nbar1; bvec[0] = bias1;
-        zspace_mbias_pk(nvec, s8, bvec, fval, 0.0, vol, 0.1, cov);
+        zspace_mbias_pk(nvec, s8, bvec, fval, 0.0, vol, kmax.getValue(), cov);
         ivar = pow(fval*s8,2)/cov(1,1);
         cout << boost::format("%1$4.2f %2$4.2f %3$4.2f %4$6.3f %5$8.4e %6$8.4e\n") % z0 % dz % bias1 % fval % vol % ivar;
         dfish += mk_lnfD_fisher(aa, ivar, fid);
