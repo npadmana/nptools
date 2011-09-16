@@ -1,0 +1,16 @@
+# Somewhat clumsy build process
+
+tar xvfz Healpix_2.20a_2011Feb09.tar.gz
+cd Healpix_2.20a/
+./configure 
+# Select 4 : C++
+# Set location of libcfitsio -- $NPTOOLS_DIR/lib
+# select osx, or something
+# Do not modify anything
+# Then exit
+make
+make test
+# Now suck out the bin, include, lib directories outside of 
+# /Users/npadmana/myWork/nptools/modules/healpix/Healpix_2.20a/src/cxx/<dir>
+# Now suck out the doc
+# Clean up.

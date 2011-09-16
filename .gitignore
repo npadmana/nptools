@@ -9,3 +9,10 @@ CMakeLists.txt.user*
 doc/
 
 lib/
+
+modules/healpix/bin
+modules/healpix/lib
+modules/healpix/include
+modules/healpix/doc
+
+
