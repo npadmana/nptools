@@ -1,0 +1,7 @@
+tar xvfz cfitsio3280.tar.gz
+cd cfitsio
+./configure --prefix=/Users/npadmana/myWork/nptools
+make
+make install
+cd ..
+rm -rf cfitsio
