@@ -20,7 +20,7 @@ link_directories("$ENV{GSL_DIR}/lib")
 
 
 # EXAMPLES --- YOU NEED TO CHANGE THIS AS NECESSARY
-set(SOURCES fomswg.cpp fisher_utils.cpp wfirst_detf.cpp zspace.cpp)
+set(SOURCES fomswg.cpp fisher_utils.cpp wfirst_detf.cpp zspace.cpp bao_forecast.cpp)
 
 
 # LIBRARIES -- an example of how to build both static and shared libs
