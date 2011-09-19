@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
    // Define the fisher matrix
    MatrixXd dfish(ndetf, ndetf);
    dfish.setZero();
-   detf fid = fiducial();
+   detf fid = detf_fiducial();
 
 
    // Now loop over all the entries, generating values

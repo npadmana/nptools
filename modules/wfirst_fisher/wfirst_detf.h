@@ -13,7 +13,7 @@ const int ndetf = 10; // Include a script M for SN
 const int ndetf_nuis = 1; // the SN param
 typedef boost::array<double, ndetf> detf;
 
-detf fiducial();
+detf detf_fiducial();
 double Omega_K0(detf c);
 double Omega_M0(detf c);
 double grgamma(detf c);

@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
    // Define the fisher matrix
    MatrixXd dfish(ndetf, ndetf);
    dfish.setZero();
-   detf fid = fiducial();
+   detf fid = detf_fiducial();
    BOOST_FOREACH( myrec l1, ll) {
         double aa = 1./(1.+l1.get<0>());
         double ivar = 1./pow(l1.get<1>(),2);

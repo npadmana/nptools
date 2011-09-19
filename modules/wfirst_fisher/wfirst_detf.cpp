@@ -10,7 +10,7 @@ using namespace std;
 using namespace Eigen;
 using namespace boost::lambda;
 
-detf fiducial() {
+detf detf_fiducial() {
     detf x;
     x[0] = -1.0; //w0
     x[1] = 0.0; //wa
@@ -78,7 +78,7 @@ double _detf2Fswg(double x, detf c, int ii, int jj) {
 }
 
 MatrixXd mkTransformMatrix() {
-    detf cc = fiducial();
+    detf cc = detf_fiducial();
 
     MatrixXd transform(nfswg, ndetf);
 

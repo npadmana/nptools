@@ -7,7 +7,7 @@ using namespace std;
 
 int main(int argc, char** argv) {
 
-    detf cosmo = fiducial();
+    detf cosmo = detf_fiducial();
 
     // Print out useful bits of information
     double h = hubble(1.0, cosmo);
