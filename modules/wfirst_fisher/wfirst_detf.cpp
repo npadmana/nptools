@@ -28,6 +28,8 @@ detf detf_fiducial() {
 
 double Omega_K0(detf x) {return x[3];}
 double Omega_M0(detf x) {return 1.0-x[2]-x[3];}
+double Omegamh2_0(detf x) {return x[4];}
+double Omegabh2_0(detf x) {return x[5];}
 double grgamma(detf x) {return 0.55+x[8];}
 
 double hubble(double a, detf x) {

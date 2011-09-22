@@ -54,3 +54,6 @@ target_link_libraries(test_detf_cosmology wfirst_fisher)
 
 add_executable(unittest unittest.cpp)
 target_link_libraries(unittest wfirst_fisher gtest gtest_main ${GSL_LIBS})
+
+add_executable(bao_test_for_cahn bao_test_for_cahn.cpp)
+target_link_libraries(bao_test_for_cahn wfirst_fisher ${GSL_LIBS})

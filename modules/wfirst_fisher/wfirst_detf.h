@@ -16,6 +16,8 @@ typedef boost::array<double, ndetf> detf;
 detf detf_fiducial();
 double Omega_K0(detf c);
 double Omega_M0(detf c);
+double Omegabh2_0(detf c);
+double Omegamh2_0(detf c);
 double grgamma(detf c);
 double hubble(double a, detf c);
 
