@@ -33,7 +33,8 @@ Eigen::Matrix2d bao_forecast (
 // Overloaded for the more standard cases, where we specify a zmin and a zmax
 Eigen::Matrix2d bao_forecast_shell (
         const double number_density,   /* The number density in h^3 Mpc^-3 */
-        const double sigma8,           /* The real-space, linear clustering amplitude */
+        const double bias,             /* The bias */
+        const double sigma8,           /* The real-space MATTER linear clustering amplitude */
         const double Sigma_z,          /* The line of sight rms comoving distance error due to redshift uncertainties */
                 /* Note that Sigma_perp and Sigma_par are for pairwise differences,
                    while Sigma_z is for each individual object */

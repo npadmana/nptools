@@ -26,6 +26,10 @@ Fswg Fiducial() {
 }
 
 double Omega_K0(Fswg cosmo) {return cosmo[3]/(cosmo[1] + cosmo[3] + cosmo[4]);}
+double Omega_M0(Fswg c) {return c[1]/(c[1] + c[3] + c[4]);}
+double Omegamh2_0(Fswg c) {return c[1];}
+double Omegabh2_0(Fswg c) {return c[2];}
+double grgamma(Fswg c) {return 0.55 + c[5];}
 
 // Return the hubble parameter at scale factor a
 // in units of 100 km/s/Mpc

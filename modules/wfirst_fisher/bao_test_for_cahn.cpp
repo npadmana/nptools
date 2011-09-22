@@ -18,6 +18,16 @@
 using namespace std;
 using namespace Eigen;
 
+double lnHs(double a, detf c) {
+    return log(hubble(a, c) * sound_horizon_eh98_fit(c));
+}
+
+double lnDa_s(double a, detf c) {
+    return log(propmotdis(a, c) * sound_horizon_eh98_fit(c));
+}
+
+
+
 int main(int argc, char** argv) {
 
    // Read in the command line
@@ -51,17 +61,19 @@ int main(int argc, char** argv) {
    cout << "Using dz = " << dz.getValue() << endl;
    cout << "Using bias(z=0) = " << bias0.getValue() << endl;
 
-   double zmin, zmax, zmid, num, errD, errH, bb, beta, amid;
+   double zmin, zmax, zmid, num, errD, errH, bb, beta, amid, s8z, Dz;
    Matrix2d cov;
    cout << "#zmid num bias beta errD(%) errH(%) \n";
    BOOST_FOREACH( myrec l1, ll) {
         zmid = l1.get<0>(); num = l1.get<1>(); amid = z2a(zmid);
-        bb = bias0.getValue() * D0/growth(amid, fidcosmo);
+        Dz = growth(amid, fidcosmo)/D0;
+        s8z = s8 * Dz; // Update sigma8
+        bb = bias0.getValue()/Dz; // Update bias
         beta = fgrowth(amid, fidcosmo)/bb;
         zmin = zmid - dz.getValue()/2.0; zmax = zmid + dz.getValue()/2.0;
-        cov = bao_forecast_shell(num, s8*bb, 0.0, beta, zmin, zmax, area.getValue(), 0.5, true);
+        cov = bao_forecast_shell(num, bb, s8z, 0.0, beta, zmin, zmax, area.getValue(), 0.5, true);
         errD = sqrt(cov(0,0)); errH = sqrt(cov(1,1));
         cov = cov/1.e4;
-        cout << boost::format("%1$4.2f %2$6.1f %3$4.2f %4$5.3f %5$4.3f %6$4.3f\n") % zmid % num % bb % beta % errD % errH;
+        cout << boost::format("%1$4.2f %2$7.1f %3$4.2f %4$5.3f %5$7.3f %6$7.3f\n") % zmid % num % bb % beta % errD % errH;
    }
 }

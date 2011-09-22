@@ -22,8 +22,13 @@ typedef boost::array<double, nfswg> Fswg;
 // Generate the fiducial cosmology
 Fswg Fiducial();
 
-// Return Omega_K at z=0
-double Omega_K0(Fswg cosmo);
+// Basic functions
+double Omega_K0(Fswg c);
+double Omega_M0(Fswg c);
+double Omegabh2_0(Fswg c);
+double Omegamh2_0(Fswg c);
+double grgamma(Fswg c);
+double hubble(double a, Fswg c);
 
 // Return the hubble parameter at scale factor a
 // in units of 100 km/s/Mpc

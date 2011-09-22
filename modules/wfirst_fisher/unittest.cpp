@@ -75,7 +75,7 @@ TEST(BAOFisher, test2) {
 
 // A case from my old python code
 TEST(BAOFisher, test3) {
-    Matrix2d tmp = bao_forecast_shell(10.95e-4, 0.608, 0.0, 0.681, 1.0 ,1.1, 24000.0, 0.5, false);
+    Matrix2d tmp = bao_forecast_shell(10.95e-4, 1.0, 0.608, 0.0, 0.681, 1.0 ,1.1, 24000.0, 0.5, false);
     EXPECT_NEAR(0.548, sqrt(tmp(0,0)), 3.e-2);
     EXPECT_NEAR(0.861, sqrt(tmp(1,1)), 3.e-2);
     EXPECT_NEAR(0.419, tmp(0,1)/sqrt(tmp(0,0)*tmp(1,1)), 1.e-3);

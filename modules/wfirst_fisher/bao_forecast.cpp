@@ -1,11 +1,13 @@
 #include "bao_forecast.h"
+#include <iostream>
 
 using namespace std;
 using namespace Eigen;
 
 // Define the fiducial cosmology
 detf _fidcosmo = detf_fiducial();
-const double sigma0 = 12.4 * 0.8/0.9;
+const double sigma8_fid = 0.8;
+const double sigma0 = 12.4 * sigma8_fid/0.9;
 
 
 double Sigma_perp(double a) {
@@ -103,6 +105,7 @@ Matrix2d bao_forecast (
 // Some convenience routines
 Matrix2d bao_forecast_shell (
         const double number_density,   /* The number density in h^3 Mpc^-3 */
+        const double bias,             /* The bias */
         const double sigma8,           /* The real-space, linear clustering amplitude */
         const double Sigma_z,          /* The line of sight rms comoving distance error due to redshift uncertainties */
                 /* Note that Sigma_perp and Sigma_par are for pairwise differences,
@@ -116,7 +119,7 @@ Matrix2d bao_forecast_shell (
     double vol, nbar; // Volume of the shell in Gpc^3 h^-3
     vol = shellVol_Gpc_h(z2a(zmin), z2a(zmax), area, _fidcosmo);
     if (isnumber) {
-       nbar = number_density * (zmax-zmin) * area/vol * 1.e9;
+       nbar = number_density * (zmax-zmin) * area/vol * 1.e-9;
     } else {
        nbar = number_density;
     }
@@ -126,6 +129,6 @@ Matrix2d bao_forecast_shell (
     double sperp = Sigma_perp(amid)*recon;
     double spar = Sigma_par(amid)*recon;
 
-    return bao_forecast(number_density, sigma8, sperp, spar, Sigma_z, beta, vol);
+    return bao_forecast(nbar, sigma8*bias, sperp, spar, Sigma_z, beta, vol);
 }
 
