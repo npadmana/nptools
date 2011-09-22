@@ -156,7 +156,18 @@ double shellVol_Mpc_h(double a0, double a1, double area, C cosmo) {
 
 
 
+// EH98 code
 
+// Sound horizon -- the simple code
+// This is a transcription of Eq. 26
+template <class C>
+double sound_horizon_eh98_fit(C cosmo) {
+    double wmh2 = Omegamh2_0(cosmo);
+    double wbh2 = Omegabh2_0(cosmo);
+    double den = sqrt(1.0 + 10.0 * pow(wbh2, 0.75));
+    double num = 44.5 * log(9.83/wmh2);
+    return num/den;
+}
 
 
 
