@@ -5,25 +5,50 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <gslwrap.h>
 #include <tclap/CmdLine.h>
 #include <eigen3/Eigen/Dense>
 #include <boost/format.hpp>
 #include <boost/foreach.hpp>
 #include <cosmoutils.h>
 #include <npio.h>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 #include "wfirst_detf.h"
 #include "bao_forecast.h"
 // We will need some more
 
 using namespace std;
 using namespace Eigen;
+using namespace boost::lambda;
 
 double lnHs(double a, detf c) {
     return log(hubble(a, c) * sound_horizon_eh98_fit(c));
 }
 
 double lnDa_s(double a, detf c) {
-    return log(propmotdis(a, c) * sound_horizon_eh98_fit(c));
+    return log(propmotdis(a, c) / sound_horizon_eh98_fit(c));
+}
+
+
+double _mkderiv_impl(double x, int idetf, int iobs, double amid, detf c) {
+   c[idetf] = x;
+   if (iobs == 0) {
+       return lnDa_s(amid, c);
+   } else {
+       return lnHs(amid, c);
+   }
+}
+
+MatrixXd MkDerivs(double amid, detf c0) {
+    MatrixXd deriv(ndetf, 2);
+
+    for (int idetf=0; idetf < ndetf; ++idetf)
+        for (int iobs=0; iobs < 2; ++iobs) {
+            deriv(idetf, iobs) = Diff<func_d_d>( bind(_mkderiv_impl, _1, idetf, iobs, amid, c0))(c0[idetf], 1.e-5);
+        }
+
+    return deriv;
 }
 
 
@@ -63,6 +88,9 @@ int main(int argc, char** argv) {
 
    double zmin, zmax, zmid, num, errD, errH, bb, beta, amid, s8z, Dz;
    Matrix2d cov;
+   MatrixXd dmat(ndetf, 2);
+   MatrixXd dfish(ndetf, ndetf);
+   dfish.setZero();
    cout << "#zmid num bias beta errD(%) errH(%) \n";
    BOOST_FOREACH( myrec l1, ll) {
         zmid = l1.get<0>(); num = l1.get<1>(); amid = z2a(zmid);
@@ -75,5 +103,14 @@ int main(int argc, char** argv) {
         errD = sqrt(cov(0,0)); errH = sqrt(cov(1,1));
         cov = cov/1.e4;
         cout << boost::format("%1$4.2f %2$7.1f %3$4.2f %4$5.3f %5$7.3f %6$7.3f\n") % zmid % num % bb % beta % errD % errH;
+        dmat =  MkDerivs(amid, fidcosmo);
+        dfish += dmat * (cov.inverse() * dmat.transpose());
    }
+
+   // Now marginalize the SN paramater
+   dfish  = marginalizeSNparam(dfish);
+
+   // Write this out
+   writeDETFFisher(outfn.getValue(), dfish);
+
 }
