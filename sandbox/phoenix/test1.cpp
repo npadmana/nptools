@@ -35,5 +35,16 @@ int main() {
     cout << endl;
 
 
+    // Now do something relatively complicated
+    // First, add 1
+    // increase by 1 everything > 5
+    for_each(v.begin(), v.end(), (
+                 arg1++,
+                 if_(arg1 > 5)[
+                    arg1++
+                 ]
+                 ));
+    for_each(v.begin(), v.end(), cout << arg1 << " ");
+    cout << endl;
 
 }
