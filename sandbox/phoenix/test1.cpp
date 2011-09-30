@@ -12,6 +12,15 @@ void print(F f) {
     cout << f() << endl;
 }
 
+int mymult(int x, int y) {
+    return x*y;
+}
+
+class simple {
+    public :
+        int i;
+};
+
 int main() {
     using boost::phoenix::arg_names::arg1;
 
@@ -46,5 +55,21 @@ int main() {
                  ));
     for_each(v.begin(), v.end(), cout << arg1 << " ");
     cout << endl;
+
+    // More stuff -- with bind this time
+    // replace everything by 3 times it.
+    // There are of course easier ways to do this!
+    for_each(v.begin(), v.end(), arg1 = bind(&mymult, arg1, 3));
+    for_each(v.begin(), v.end(), cout << arg1 << " ");
+    cout << endl;
+
+
+    simple cc;
+    cc.i = 0;
+    for_each(v.begin(), v.end(), (
+                 bind(&simple::i, ref(cc))  += arg1,
+                 cout << bind(&simple::i, ref(cc)) << " " ));
+    cout << endl;
+    cout << cc.i << endl;
 
 }
